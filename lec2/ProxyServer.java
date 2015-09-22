@@ -108,6 +108,8 @@ public class ProxyServer {
 
         Socket sock = null;
         String[] userInput = null;
+        BufferedReader in = null;
+        PrintWriter out = null;
         try {
             String[] serverArg = server.split(" ");
             sock = new Socket(serverArg[0], Integer.parseInt(serverArg[1]));    //get the socket and connet to the server
@@ -130,9 +132,6 @@ public class ProxyServer {
             sock.close();
         } catch(Exception e) {
             out.println("ERROR:" + e);
-            out.close();
-            in.close();
-            sock.close(); 
         }
 
         //System.out.println(msg + " sended.");
