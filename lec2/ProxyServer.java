@@ -129,8 +129,10 @@ public class ProxyServer {
             in.close();
             sock.close();
         } catch(Exception e) {
-            System.out.println("ERROR:" + e);
-            System.exit(-1); 
+            out.println("ERROR:" + e);
+            out.close();
+            in.close();
+            sock.close(); 
         }
 
         //System.out.println(msg + " sended.");
