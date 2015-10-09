@@ -12,8 +12,11 @@ BUFFER_SIZE = 1024
 
 # Key-Value store
 values = {}
-#path_lkup = {}
 
+# define a round robin function to maintain the load balancing
+def round_robin():
+    
+# function process 'add' action
 def cmd_add(tokens):
     haskey = 0;
     if len(tokens) > 5:
@@ -31,6 +34,7 @@ def cmd_add(tokens):
     
     return ('SUCCESS\n')
 
+# function process 'remove' action
 def cmd_remove(tokens):
     remove = 0;
     if len(tokens) > 3:
@@ -43,7 +47,8 @@ def cmd_remove(tokens):
     if remove == 0:
         return 'FAILURE IP_ADDR and port not found.\n'
     return ('SUCCESS\n')
-    
+
+# function process 'lookup' action
 def cmd_lookup(tokens):
     print tokens
     if len(tokens) > 3:
@@ -51,11 +56,17 @@ def cmd_lookup(tokens):
     elif values is None:
         return 'Error: LOOKUP table is empty.\n'
     if tokens[1]+tokens[2] in values:
-        return values[tokens[1]+tokens[2]][0]+'\n'
+        if len(values[tokens[1]+tokens[2]]) != 0:
+            return values[tokens[1]+tokens[2]][0]+'\n'
+        else:
+            return 'Error: can not find related conversion server.'
     elif tokens[2]+tokens[1] in values:
-        return values[tokens[2]+tokens[1]][0]+'\n'
+        if len(values[tokens[2]+tokens[1]]) != 0:
+            return values[tokens[2]+tokens[1]][0]+'\n'
+        else:
+            return 'Error: can not find related conversion server.'
     else:
-        return 'Error: can not accomplish this convertion.'
+        return 'Error: can not find related conversion server.'
      
     
 commands = { "add" : cmd_add,
@@ -64,7 +75,7 @@ commands = { "add" : cmd_add,
              }
 
 def process(conn):
-    greeting = "Welcome, you are connected to a Python-based simple command server.\n"
+    greeting = "Welcome, you are connected to a Python-based discover server.\n"
     conn.sendall(greeting.encode('UTF-8'))
     userInput = conn.recv(BUFFER_SIZE).decode('UTF-8')
 
