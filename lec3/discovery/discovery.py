@@ -29,7 +29,7 @@ def cmd_add(tokens):
         return 'Failure entry exists.\n'
     unit_to_server[(u1,u2)][(host,port)] = 1
     server_to_unit[(host,port)] = (u1,u2)
-    r_visit[u1,u2] = 0
+    r_visit[(u1,u2)] = 0
     return 'Success\n'
 
 def cmd_remove(tokens):
@@ -42,7 +42,7 @@ def cmd_remove(tokens):
 
     del server_to_unit[(host,port)]
     del unit_to_server[(u1,u2)][(host,port)]
-    del r_visit[u1,u2]
+    del r_visit[(u1,u2)]
 
     if len(unit_to_server[(u1,u2)]) == 0:
            del unit_to_server[(u1,u2)]
@@ -130,10 +130,10 @@ def get_path(src, dst):
 r_visit={}
 def round_robin(s,d):
     print len(unit_to_server[(s,d)].items())
-    if s,d in r_visit
-        host,port = unit_to_server[(s,d)].items()[r_visit[s+d]][0]
-        r_visit[s,d] = r_visit[s,d]+1
-        if(r_visit[s,d] >= len(unit_to_server[(s,d)].items()))
+    if (s,d) in r_visit:
+        host,port = unit_to_server[(s,d)].items()[r_visit[(s,d)]][0]
+        r_visit[(s,d)] = r_visit[(s,d)]+1
+        if(r_visit[s,d] >= len(unit_to_server[(s,d)].items())):
             r_visit[s,d] = 0
     return host,port
 
@@ -161,7 +161,7 @@ def cmd_path(tokens):
             s,d = id_to_unit[u],id_to_unit[v]
             # Tricky dereference: lookup in a dictionary, get a dictionary, get the first entry, and its key.
             print unit_to_server[(s,d)].items()
-            host,port = unit_to_server[(s,d)].items()[0][0]
+            host,port = round_robin(s,d)
             msg += ('Query %s %s to server at %s %s\n' % (s, d, host, port))
             u = v
     return msg
