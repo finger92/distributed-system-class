@@ -19,13 +19,14 @@ BUFFER_SIZE = 1024
 def proxy_request(src_unit, dst_unit, amount, host, port):
     msg = '%s %s %s\n' % (src_unit, dst_unit, amount)
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.connect((host, int(port)))
-    s.sendall(msg.encode('UTF-8'))
-    greeting = s.recv(BUFFER_SIZE)
-    print greeting
-    converted = s.recv(BUFFER_SIZE)
-    print converted
-    value = float(converted.decode('UTF-8'))
+    try:
+        s.connect((host, int(port)))
+        s.sendall(msg.encode('UTF-8'))
+        greeting = s.recv(BUFFER_SIZE)
+        converted = s.recv(BUFFER_SIZE)
+        value = float(converted.decode('UTF-8'))
+    except:
+        
     s.close();
     print("Proxy request returning %s" % value)
     return value
@@ -62,8 +63,10 @@ def process(conn, next):
     P = path.lower().splitlines()
     print(P)
 
-    if P[0].startswith('Failure'):
-        print("Failed to find path. Discovery server returned: %s" % (path))
+    if P[0].startswith('failure'):
+        ermsg = "Failed to find path. Discovery server returned: %s" % (path)
+        print(ermsg)
+        conn.send(ermsg.encode('UTF-8'))
         return
     else:
         # Parse the path response
