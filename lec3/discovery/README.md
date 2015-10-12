@@ -1,8 +1,8 @@
 # Execute
 `Notice:`</br>
 ```
-Discovery Server should always start before Conversion servers and proxy server. </br>
-Number of ports should be different.</br>
+Discovery Server should always start before Conversion servers and proxy server. 
+Number of ports should be different.
 ```
 
 `Discovery Server:`  </br>
