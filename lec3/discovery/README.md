@@ -65,6 +65,7 @@ There is no operation before the restart:
 >When discovery server recieved a adding operation, it will write this operation to discovFile. When it recieved removing 
 operation, it will delete the related adding information in discovFile. When discovery server crashed and restart, it will
 read the information in discovFile and readd those information to the server.
+
 ```
 There are some adding and removing during this period:
 ```
