@@ -37,17 +37,17 @@ When following requests comes, the system will choose the next server after the 
 
 ## Case 1: Conversion servers crash: For example conv_a
 ```
-### conv_a restart at the same address:
+conv_a restart at the same address:
 ```
 >When conv_b recieve 'failure entry exists.' in adding operation, it indicate that a former conversion server opened 
 on the same ip address and port was crashed without sending removing operation, so it just remove the former info in
 tables in discovery server and add new info.
 ```
-### conv_b restart at the same address:
+conv_b restart at the same address:
 ```
 >This situation is similar to the one above.
 ```	
-### conv_a restart at a different address:
+conv_a restart at a different address:
 ```
 >When proxyServer recieve 'connection refuse' info from a convertion server, this indicate that this convertion server
 may be crashed without sending removing msg. So proxyServer will send removing msg to discovery server.
@@ -58,13 +58,13 @@ may be crashed without sending removing msg. So proxyServer will send removing m
 Fault tolerant mainly works when the discovery server restarts after crashing.
 ```
 ```
-### There is no operation before the restart:
+There is no operation before the restart:
 ```
 >When discovery server recieved a adding operation, it will write this operation to discovFile. When it recieved removing 
 operation, it will delete the related adding information in discovFile. When discovery server crashed and restart, it will
 read the information in discovFile and readd those information to the server.
 ```
-### There are some adding and removing during this period:
+There are some adding and removing during this period:
 ```
 >The adding operation will fail, and the new convertion servers have to wait for the discover restart.
 
