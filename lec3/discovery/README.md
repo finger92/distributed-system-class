@@ -19,11 +19,12 @@ python convServerName.py portnum
 ```
 
 `For example:`</br>
+```
 python discovery.py 5555 </br>
 python proxyServer.py 5556 127.0.0.1 5555 </br>
 python convServer_b_in.py 5557 </br>
 python ConvServer_b_lbs.py 5558 </br>
-  
+```
 
 # Policies For Load Balancing
 >As to implement load balancing, to reduce the mistakes resulted from crash of servers, there will be multiple conversion servers for each type of conversion. For example, there maybe three conversion servers working for the conversion between banana and inch. Thus if two of them stop working, the system can still give users the result. 
