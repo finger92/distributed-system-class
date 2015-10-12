@@ -59,16 +59,16 @@ may be crashed without sending removing msg. So proxyServer will send removing m
 ```
 Fault tolerant mainly works when the discovery server restarts after crashing.
 ```
-```
-There is no operation before the restart:
-```
+
+### There is no operation before the restart:
+
 >When discovery server recieved a adding operation, it will write this operation to discovFile. When it recieved removing 
 operation, it will delete the related adding information in discovFile. When discovery server crashed and restart, it will
 read the information in discovFile and readd those information to the server.
 
-### ```
-There are some adding and removing during this period:
-```
+
+### There are some adding and removing during this period:
+
 >The adding operation will fail, and the new convertion servers have to wait for the discover restart.
 
 >The removing operation or the crash of convertion server will not be written in discovFile, so when discovery server restart,it don't know those conversion servers are still alive or not. However, such removing operations will be done through new convertion servers or proxyServer (see Case 1).
