@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+
 #
 # CS 6421 - Simple Python based discovery server, including path find.
 # Uses a dictionary dispatch table to process simple get
@@ -7,7 +8,7 @@
 # For path-finding, it builds an internal graph representation of the
 # conversion server network, and processes conversion requests by
 # doing a shortest-path traversal through the conversion network.
-#
+#   python discovery.py 5555
 
 import socket, sys
 import traceback
@@ -20,8 +21,30 @@ BUFFER_SIZE = 1024
 # Tricky data structure for unit_to_server, a dict of dicts
 unit_to_server = defaultdict(dict)
 server_to_unit = {}
+loading = 0
 
+# Process an bidirectional add conversion server command
 def cmd_add(tokens):
+    if len(tokens) != 5:
+        return 'Failure invalid command. Expected: add u1 u2 host port.\n'
+    u1,u2,host,port = tokens[1:]
+    for key in unit_to_server:
+        if (host,port) in unit_to_server[key]:
+            return 'Failure entry exists.\n'
+    unit_to_server[(u1,u2)][(host,port)] = 1
+    unit_to_server[(u2,u1)][(host,port)] = 1
+    server_to_unit[(host,port)] = (u1,u2)
+    r_visit[(u1,u2)] = 0
+    r_visit[(u2,u1)] = 0
+    
+    # save all infos into file to prevent the crash of discovery serer
+    global loading
+    if loading == 0:
+        save_file("add " + u1 + " " + u2 + " " + host + " " + port + "\n");
+    return 'Success\n'
+
+# Process an unidirectional add conversion server command
+def cmd_adduni(tokens):
     if len(tokens) != 5:
         return 'Failure invalid command. Expected: add u1 u2 host port.\n'
     u1,u2,host,port = tokens[1:]
@@ -29,27 +52,34 @@ def cmd_add(tokens):
         return 'Failure entry exists.\n'
     unit_to_server[(u1,u2)][(host,port)] = 1
     server_to_unit[(host,port)] = (u1,u2)
-    r_visit[(u1,u2)] = 0
     return 'Success\n'
 
+# Process a remove conversion server command
 def cmd_remove(tokens):
     if len(tokens) != 3:
         return 'Failure invalid command. Expected: remove host port.\n'
     host,port = tokens[1:]
     if not (host,port) in server_to_unit:
         return 'Failure entry does not exist.\n'
+
     u1,u2 = server_to_unit[(host,port)]
-
     del server_to_unit[(host,port)]
-    del unit_to_server[(u1,u2)][(host,port)]
-    del r_visit[(u1,u2)]
 
-    if len(unit_to_server[(u1,u2)]) == 0:
-           del unit_to_server[(u1,u2)]
+    if (u1,u2) in unit_to_server:
+        del unit_to_server[(u1,u2)][(host,port)]
+        if len(unit_to_server[(u1,u2)]) == 0:
+            del unit_to_server[(u1,u2)]
+
+    if (u2,u1) in unit_to_server:
+        del unit_to_server[(u2,u1)][(host,port)]
+        if len(unit_to_server[(u2,u1)]) == 0:
+            del unit_to_server[(u2,u1)]
+
+    update_file(host, port)
     return 'Success\n'
 
 
-# Look up a a single conversion server from u1 to u2
+# Process a lookup a a single conversion server from u1 to u2
 def cmd_lookup(tokens):
     if len(tokens) != 3:
         return 'Failure invalid command. Expected: lookup u1 u2.\n'
@@ -60,6 +90,75 @@ def cmd_lookup(tokens):
     host,port = L[0][0]
     msg = '%s %s\n' % (host,port)
     return msg
+
+## when recieve adding operation, write every operation in discovFile 
+## in order to load when server restart after crash
+def save_file(msg):
+    f = open('discovFile', 'a')
+    try:
+        f.write(msg)
+    finally:    
+        f.close()
+    return
+
+## when recieve removing operation, delete related adding operation in   
+## discovFile
+def update_file(host, port):
+    f = open('discovFile', 'rw+')
+    try:
+        info = f.readlines()
+        if not info:
+            print "Error update, file is empty"
+        else:
+            rw=""
+            for l in info:
+                tokens = l.lower().split()
+                if tokens[3] == host and tokens[4] == port:
+                    continue
+                rw+=l
+            f.seek(0)
+            f.truncate(0)
+            f.write(rw)
+    except Exception as e:
+        print e
+    finally:
+        f.close()
+    return
+
+ 
+def load_file(port):
+    f = open('discovFile', 'r')
+    try:
+        info = f.readlines()
+        if not info:
+            print "Nothing to load, file is empty"
+        else:
+            global loading
+            loading = 1
+            for l in info:
+                tokens = l.lower().split()
+                cmd_add(tokens)
+            loading = 0
+    finally:    
+        f.close()
+    return
+
+# add round robin function to maintain the load balancing
+r_visit={}
+def round_robin(s,d):
+    if (s,d) in r_visit:
+        r_visit[(s,d)] = r_visit[(s,d)]+1
+        if(r_visit[s,d] >= len(unit_to_server[(s,d)].items())):
+            r_visit[s,d] = 0
+        host,port = unit_to_server[(s,d)].items()[r_visit[(s,d)]][0]
+        return host,port
+    if (d,s) in r_visit:
+        r_visit[(d,s)] = r_visit[(d,s)]+1
+        if(r_visit[d,s] >= len(unit_to_server[(d,s)].items())):
+            r_visit[d,s] = 0
+        host,port = unit_to_server[(d,s)].items()[r_visit[(d,s)]][0]
+        return host,port
+    return "",""
 
 # A list of all available units, and conversions to and from unit ids
 units = ('ft', 'in', 'cm', 'm', 'kg', 'g', 'lbs', 'b', '$', 'y')
@@ -126,18 +225,8 @@ def get_path(src, dst):
 
     return path
 
-# add round robin function to maintain the load balancing
-r_visit={}
-def round_robin(s,d):
-    print len(unit_to_server[(s,d)].items())
-    if (s,d) in r_visit:
-        host,port = unit_to_server[(s,d)].items()[r_visit[(s,d)]][0]
-        r_visit[(s,d)] = r_visit[(s,d)]+1
-        if(r_visit[s,d] >= len(unit_to_server[(s,d)].items())):
-            r_visit[s,d] = 0
-    return host,port
 
-# Look up a path from u1 to u2
+# Process a lookup path from u1 to u2 command
 def cmd_path(tokens):
     if len(tokens) != 3:
         return 'Failure invalid command. Expected: path u1 u2.\n'
@@ -160,7 +249,6 @@ def cmd_path(tokens):
             v = i
             s,d = id_to_unit[u],id_to_unit[v]
             # Tricky dereference: lookup in a dictionary, get a dictionary, get the first entry, and its key.
-            print unit_to_server[(s,d)].items()
             host,port = round_robin(s,d)
             msg += ('Query %s %s to server at %s %s\n' % (s, d, host, port))
             u = v
@@ -169,6 +257,7 @@ def cmd_path(tokens):
 
 # Dict for command dispatch.
 commands = { "add" : cmd_add,
+             "adduni" : cmd_adduni,
              "remove" : cmd_remove,
              "lookup" : cmd_lookup,
              "path" : cmd_path,
@@ -241,6 +330,10 @@ if __name__ == '__main__':
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.bind((interface, portnum))
     s.listen(5)
+    
+    # load discovFile at beginning
+    load_file(portnum)
+    
     exit_flag = False
     try:
         print("Started Python-based discovery command server on port %s" % (portnum))

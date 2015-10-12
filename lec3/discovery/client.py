@@ -3,8 +3,8 @@
 #******************************************************************************
 #
 #  CS 6421 - Simple Conversation
-#  implement convertion between bananas and pounds of bananas
-#  Execution:    python convServer_b_lbs.py portnum
+#  implement convertion between bananas and inches of bananas
+#  Execution:    python client.py proxy_host proxy_port
 #
 #******************************************************************************
 
@@ -20,7 +20,7 @@ def send_to_discov(oprt, l_addr, l_port):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.connect((DISCOV_IP,DISCOV_PORT))   #get connetion
         if oprt == 'add':
-            sock.send(oprt + ' b lbs ' + l_addr + ' ' + l_port + '\n') #send messages
+            sock.send(oprt + ' b in ' + l_addr + ' ' + l_port + '\n') #send messages
         else:
             sock.send(oprt + ' ' + l_addr + ' ' + l_port + '\n')
         result = sock.recv(BUFFER_SIZE).decode('UTF-8')
@@ -42,7 +42,7 @@ def send_to_discov(oprt, l_addr, l_port):
 
 ## Function to process requests
 def process(conn):
-    greeting = "Welcome to the Bananas (b) to Pounds (lbs) conversion server!\n"
+    greeting = "Welcome to the Bananas (b) to Inches (in) conversion server!\n"
     conn.send(greeting.encode('UTF-8'))
 
     # read userInput from client
@@ -56,16 +56,16 @@ def process(conn):
     mylist = userInput.split(" ")
     # excption handler
     if len(mylist) != 3:
-        conn.send('pls input 3 arguements. Usage: eg. b lbs 2 or lbs b 2\n')
-    elif mylist[0] == mylist[1] or mylist[0] != 'b' and mylist[0] != 'lbs' or mylist[1] != 'b' and mylist[1] != 'lbs':
-        conn.send('Wrong input. Usage: eg. b lbs 2 or lbs b 2\n');
+        conn.send('pls input 3 arguements. Usage: eg. b in 6 or in b 6\n')
+    elif mylist[0] == mylist[1] or mylist[0] != 'b' and mylist[0] != 'in' or mylist[1] != 'b' and mylist[1] != 'in':
+        conn.send('Wrong input. Usage: eg. b in 2 or in b 2\n');
     else:
         # send convertion result
         if mylist[0] == 'b':
-            msg = str(float(mylist[2]) * 0.2646)
+            msg = str(float(mylist[2]) * 6)+'\n'
             conn.send(msg.encode('UTF-8'))
-        elif mylist[0] == 'lbs':
-            msg = str(float(mylist[2]) * 0.2646)
+        elif mylist[0] == 'in':
+            msg = str(float(mylist[2]) / 6)+'\n'
             conn.send(msg.encode('UTF-8'))
 
 
@@ -95,12 +95,12 @@ send_to_discov('add', l_addr, l_port)
 
 exit_flag = False
 try:
-    print("Started Python-based Bananas (b) to Pounds (lbs) conversion server on port %s" % (portnum))
+    print("Started Python-based command server on port %s" % (portnum))
     while not exit_flag:
         conn, addr = s.accept()
         print ('Accepted connection from client ', addr)
         try:
-            process(conn)
+            msg = process(conn)
         except:
             traceback.print_exc(file=sys.stdout)
             print ('Failed to process request from client. Continuing.')

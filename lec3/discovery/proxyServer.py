@@ -1,8 +1,5 @@
 #!/usr/bin/env python
 
-# Ahsen Uppal
-
-#
 #  CS 6421 - Python-based proxy conversion server. 
 #  Queries a specified discovery server to query for a conversion path.
 #
@@ -22,12 +19,18 @@ def proxy_request(src_unit, dst_unit, amount, host, port):
     try:
         s.connect((host, int(port)))
         s.sendall(msg.encode('UTF-8'))
-        greeting = s.recv(BUFFER_SIZE)
-        converted = s.recv(BUFFER_SIZE)
-        value = float(converted.decode('UTF-8'))
-    except:
-        
-    s.close();
+    except Exception as e:
+        # if a server crashed without sending removing operation 
+        # then proxy server send it to discovery server
+        if "Connection refused" in e:
+            s.connect((discovery_host, int(discovery_port)))
+            msg = "remove " + host + " " + port + "\n" 
+            s.sendall(msg.encode('UTF-8'))
+            s.recv(BUFFER_SIZE)
+            return "Failed, one of the convertion server was crashed, please try it later."
+    greeting = s.recv(BUFFER_SIZE)
+    converted = s.recv(BUFFER_SIZE).strip('\n')
+    value = float(converted.decode('UTF-8'))
     print("Proxy request returning %s" % value)
     return value
 
@@ -39,7 +42,6 @@ def discovery_path_request(src_unit, dst_unit, host, port):
     s.sendall(msg.encode('UTF-8'))
     greeting = s.recv(BUFFER_SIZE)
     msg = s.recv(BUFFER_SIZE).decode('UTF-8')
-    s.close();
     print("Path request returning %s" % msg)
     return msg
 
@@ -61,13 +63,11 @@ def process(conn, next):
     path = discovery_path_request(input_unit, output_unit, discovery_host, discovery_port)
 
     P = path.lower().splitlines()
-    print(P)
 
     if P[0].startswith('failure'):
-        ermsg = "Failed to find path. Discovery server returned: %s" % (path)
-        print(ermsg)
-        conn.send(ermsg.encode('UTF-8'))
-        return
+        msg = "Failed, discovery server returned: " + path
+        conn.send(msg.encode('UTF-8'))
+        return 
     else:
         # Parse the path response
         # Format is "Query ft m to server at localhost 5570"

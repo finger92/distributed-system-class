@@ -4,7 +4,7 @@
 #
 #  CS 6421 - Simple Conversation
 #  implement convertion between bananas and inches of bananas
-#  Execution:    python convServer_2.py portnum
+#  Execution:    python convServer_b_in.py portnum
 #
 #******************************************************************************
 
@@ -15,13 +15,25 @@ DISCOV_PORT = 5555
 BUFFER_SIZE = 1024
 
 ## Function to send msg to discover server
-def send_to_discov(msg): 
+def send_to_discov(oprt, l_addr, l_port): 
     try:
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.connect((DISCOV_IP,DISCOV_PORT))   #get connetion
-        sock.send(msg) #send messages
-        result = sock.recv(BUFFER_SIZE);
+        if oprt == 'add':
+            sock.send(oprt + ' b in ' + l_addr + ' ' + l_port + '\n') #send messages
+        else:
+            sock.send(oprt + ' ' + l_addr + ' ' + l_port + '\n')
+        result = sock.recv(BUFFER_SIZE).decode('UTF-8')
+        result = result.lower()
         print result
+        
+        # if find there are two same ip addresses combined with same port do
+        # different conversion, then this indicate that the former server was 
+        # crashed and need to be removed
+        if "failure entry exists." in result:
+            print "resending adding message"
+            send_to_discov('remove', l_addr, l_port)
+            send_to_discov('add', l_addr, l_port)
         sock.close()
     except socket.error, arg:
         print 'operations failed. More info:', arg
@@ -30,17 +42,17 @@ def send_to_discov(msg):
 
 ## Function to process requests
 def process(conn):
-    conn.send("Welcome to the Bananas (b) to Inches (in) conversion server!\n")
+    greeting = "Welcome to the Bananas (b) to Inches (in) conversion server!\n"
+    conn.send(greeting.encode('UTF-8'))
 
     # read userInput from client
     userInput = conn.recv(BUFFER_SIZE)
     if not userInput:
-        print "Error reading message"
-        sys.exit(1)
+        conn.send("Failure reading message.\n");
+        return
 
     print "Received message: ", userInput
     
-    # TODO: add convertion function here, reply = func(userInput)
     mylist = userInput.split(" ")
     # excption handler
     if len(mylist) != 3:
@@ -50,10 +62,11 @@ def process(conn):
     else:
         # send convertion result
         if mylist[0] == 'b':
-            conn.send(str(float(mylist[2]) * 6)+'\n');
+            msg = str(float(mylist[2]) * 6)+'\n'
+            conn.send(msg.encode('UTF-8'))
         elif mylist[0] == 'in':
-            conn.send(str(float(mylist[2]) / 6)+'\n');
-    conn.close()
+            msg = str(float(mylist[2]) / 6)+'\n'
+            conn.send(msg.encode('UTF-8'))
 
 
 ### Main code run when program is started
@@ -78,7 +91,7 @@ l_port = sys.argv[1];
 s.bind((interface, portnum))
 s.listen(5)
 
-send_to_discov('add b in ' + l_addr + ' ' + l_port + '\n')
+send_to_discov('add', l_addr, l_port)
 
 exit_flag = False
 try:
@@ -87,7 +100,7 @@ try:
         conn, addr = s.accept()
         print ('Accepted connection from client ', addr)
         try:
-            process(conn)
+            msg = process(conn)
         except:
             traceback.print_exc(file=sys.stdout)
             print ('Failed to process request from client. Continuing.')
@@ -96,6 +109,6 @@ except KeyboardInterrupt:
     exit_flag = True
 
 print("Exiting...")
-send_to_discov('remove ' + l_addr + ' ' + l_port + '\n')
+send_to_discov('remove', l_addr, l_port)
 s.close()
 sys.exit(0)
