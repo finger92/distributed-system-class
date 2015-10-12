@@ -30,8 +30,16 @@ def proxy_request(src_unit, dst_unit, amount, host, port):
             return "Failed, one of the convertion server was crashed, please try it later."
     greeting = s.recv(BUFFER_SIZE)
     converted = s.recv(BUFFER_SIZE)
-    value = float(converted.decode('UTF-8'))
-    print("Proxy request returning %s" % value)
+    print greeting, converted
+    try:
+        # handle an unknown bug happend in the every first query
+        if not converted:
+            value = float(greeting.splitlines()[1])
+        else:
+            value = float(converted.decode('UTF-8'))
+        print("Proxy request returning %s" % value)
+    except:
+        return "Result converted failed, please check the convertion server or try it again.\n"
     return value
 
 # Issue a path request to a discovery server and return the result
@@ -60,6 +68,10 @@ def process(conn, next):
 
     print("Received message: %s" % (userInput))
     tokens = userInput.split()
+    if len(tokens)!=3:
+        err = "Need to input three arguements\n"
+        conn.send(err.encode('UTF-8'))
+        return 
     input_unit,output_unit,amount = tokens
     c = float(amount)
 

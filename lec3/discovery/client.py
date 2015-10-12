@@ -56,7 +56,7 @@ try:
         if "Failed" in m:
             print ("Failed to process request from client. Info: "+ m)
         else:
-            print("Proxy request returning %s" % m)
+            print("Proxy request returning: %s" % m)
         print ("continue.")
 except KeyboardInterrupt:
     exit_flag = True
