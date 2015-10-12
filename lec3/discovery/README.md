@@ -1,22 +1,22 @@
 # Execute
 `Notice:`</br>
->Discovery Server should always start before Conversion servers and proxy server. </br>
->Number of ports should be different.</br>
+Discovery Server should always start before Conversion servers and proxy server. </br>
+Number of ports should be different.</br>
 
 `Discovery Server:`  </br>
->python discovery.py 5555(Must be this port number). </br>
+python discovery.py 5555(Must be this port number). </br>
 
 `Proxy Server:`  </br>
->python proxyServer.py portnum discovery-host discovery-port</br>
+python proxyServer.py portnum discovery-host discovery-port</br>
 
 `Conversion Server:`: </br>
->python convServerName.py portnum
+python convServerName.py portnum
 
 `For example:`</br>
->python discovery.py 5555 </br>
->python proxyServer.py 5556 127.0.0.1 5555 </br>
->python convServer_b_in.py 5557 </br>
->python ConvServer_b_lbs.py 5558 </br>
+python discovery.py 5555 </br>
+python proxyServer.py 5556 127.0.0.1 5555 </br>
+python convServer_b_in.py 5557 </br>
+python ConvServer_b_lbs.py 5558 </br>
   
 
 # Policies For Load Balancing
