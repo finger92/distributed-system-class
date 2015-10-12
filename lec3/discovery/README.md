@@ -36,21 +36,21 @@ When following requests comes, the system will choose the next server after the 
 # Policies For Fault Tolerant
 
 ## Case 1: Conversion servers crash: For example conv_a
-```
-conv_a restart at the same address:
-```
+
+### conv_a restart at the same address:
+
 >When conv_b recieve 'failure entry exists.' in adding operation, it indicate that a former conversion server opened 
 on the same ip address and port was crashed without sending removing operation, so it just remove the former info in
 tables in discovery server and add new info.
 
-```
-conv_b restart at the same address:
-```
+
+### conv_b restart at the same address:
+
 >This situation is similar to the one above.
 
-```	
-conv_a restart at a different address:
-```
+
+### conv_a restart at a different address:
+
 >When proxyServer recieve 'connection refuse' info from a convertion server, this indicate that this convertion server
 may be crashed without sending removing msg. So proxyServer will send removing msg to discovery server.</br>
 
