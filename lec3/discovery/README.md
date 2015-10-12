@@ -45,7 +45,9 @@ may be crashed without sending removing msg. So proxyServer will send removing m
 
 
 ## Case 2: Discovery server crash:
+```
 Fault tolerant mainly works when the discovery server restarts after crashing.
+```
 
 >### There is no operation before the restart:
 >>When discovery server recieved a adding operation, it will write this operation to discovFile. When it recieved removing 
