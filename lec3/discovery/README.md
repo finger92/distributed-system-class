@@ -7,11 +7,11 @@ Number of ports should be different.</br>
 
 `Discovery Server:`  </br>
 ```
-python discovery.py 5555(Must be this port number). </br>
+python discovery.py 5555(Must be this port number). 
 ```
 `Proxy Server:`  </br>
 ```
-python proxyServer.py portnum discovery-host discovery-port</br>
+python proxyServer.py portnum discovery-host discovery-port
 ```
 `Conversion Server:`: </br>
 ```
