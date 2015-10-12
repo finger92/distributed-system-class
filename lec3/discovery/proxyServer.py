@@ -29,7 +29,7 @@ def proxy_request(src_unit, dst_unit, amount, host, port):
             s.recv(BUFFER_SIZE)
             return "Failed, one of the convertion server was crashed, please try it later."
     greeting = s.recv(BUFFER_SIZE)
-    converted = s.recv(BUFFER_SIZE).strip('\n')
+    converted = s.recv(BUFFER_SIZE)
     value = float(converted.decode('UTF-8'))
     print("Proxy request returning %s" % value)
     return value
@@ -42,7 +42,10 @@ def discovery_path_request(src_unit, dst_unit, host, port):
     s.sendall(msg.encode('UTF-8'))
     greeting = s.recv(BUFFER_SIZE)
     msg = s.recv(BUFFER_SIZE).decode('UTF-8')
-    print("Path request returning %s" % msg)
+    print("Path request returning: %s" % (msg))
+    if not msg:
+        # handle a strange bug
+        return greeting.splitlines()[1]
     return msg
 
 
@@ -65,7 +68,7 @@ def process(conn, next):
     P = path.lower().splitlines()
 
     if P[0].startswith('failure'):
-        msg = "Failed, discovery server returned: " + path
+        msg = "Failed, discovery server returned: " + path + "\n"
         conn.send(msg.encode('UTF-8'))
         return 
     else:
