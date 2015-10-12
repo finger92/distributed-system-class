@@ -66,7 +66,7 @@ There is no operation before the restart:
 operation, it will delete the related adding information in discovFile. When discovery server crashed and restart, it will
 read the information in discovFile and readd those information to the server.
 
-```
+### ```
 There are some adding and removing during this period:
 ```
 >The adding operation will fail, and the new convertion servers have to wait for the discover restart.
