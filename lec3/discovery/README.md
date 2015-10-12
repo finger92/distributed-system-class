@@ -18,12 +18,18 @@ python proxyServer.py portnum discovery-host discovery-port
 python convServerName.py portnum
 ```
 
+`Client:`: </br>
+```
+python client.py proxy-host proxy-port
+```
+
 `For example:`</br>
 ```
 python discovery.py 5555
 python proxyServer.py 5556 127.0.0.1 5555
 python convServer_b_in.py 5557
 python ConvServer_b_lbs.py 5558
+python client.py 127.0.0.1 5556
 ```
 
 # Policies For Load Balancing
