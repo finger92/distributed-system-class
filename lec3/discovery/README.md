@@ -78,6 +78,3 @@ read the information in discovFile and readd those information to the server.
 >The adding operation will fail, and the new convertion servers have to wait for the discover restart.
 
 >The removing operation or the crash of convertion server will not be written in discovFile, so when discovery server restart,it don't know those conversion servers are still alive or not. However, such removing operations will be done through new convertion servers or proxyServer (see Case 1).
-
-# Test output
-
