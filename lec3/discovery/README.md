@@ -41,11 +41,13 @@ conv_a restart at the same address:
 ```
 >When conv_b recieve 'failure entry exists.' in adding operation, it indicate that a former conversion server opened 
 on the same ip address and port was crashed without sending removing operation, so it just remove the former info in
-tables in discovery server and add new info.</br>
+tables in discovery server and add new info.
+
 ```
 conv_b restart at the same address:
 ```
->This situation is similar to the one above.</br>
+>This situation is similar to the one above.
+
 ```	
 conv_a restart at a different address:
 ```
