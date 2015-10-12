@@ -27,7 +27,7 @@ python ConvServer_b_lbs.py 5558
 ```
 
 # Policies For Load Balancing
-As to implement load balancing, to reduce the mistakes resulted from crash of servers, there will be multiple conversion servers for each type of conversion. For example, there maybe three conversion servers working for the conversion between banana and inch. Thus if two of them stop working, the system can still give users the result. 
+As to implement load balancing, to reduce the mistakes resulted from crash of servers, there will be multiple conversion servers for each type of conversion. For example, there maybe three conversion servers working for the conversion between banana and inch. Thus if two of them stop working, the system can still give users the result. </br></br>
 This system uses the strategy of `"Round Robin"`, information of available conversion servers for a certain type of conversion are stored in an array or a dictionary. </br></br>
 When there is a request to use a type of conversion server, if it's the first time to ask for conversion between these two units, the system will choose the first server in the array to finish the work. </br></br>
 When following requests comes, the system will choose the next server after the last used server in the array. If the last used server is in the end of the array, the system will select the first one in the array. 
