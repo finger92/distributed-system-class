@@ -16,4 +16,6 @@ for line in sys.stdin:
         #
         # tab-delimited; the trivial word count is 1
     if float(words[9].split(',')[1])==0:
-        print '%s\t%s' % (words[2], int(words[7])-int(words[6]))
+        #change hours to minutes
+        v = int(words[7][0:2])*60+int(words[7][2:4])-(int(words[6][0:2])*60+int(words[6][2:4]))
+        print '%s\t%s' % (words[2], v)

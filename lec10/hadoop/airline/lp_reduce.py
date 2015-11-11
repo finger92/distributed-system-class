@@ -32,7 +32,7 @@ for line in sys.stdin:
 for airport in airports:
     count = 0
     for lt in airports[airport]:
-        if int(lt) > 0:
+        if int(lt) > 5:
             count = count + 1
     print '%s\t%s' % (airport, count*1.0/len(airports[airport]))
     
