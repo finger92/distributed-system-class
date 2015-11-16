@@ -19,13 +19,15 @@ def main(argv):
     
     for line in sys.stdin:
         # split line into words and test with classifier
+        presi = None
         for p in presi_candidate:
             if p in line:
                 presi = p
                     break
         tolk_posset = word_tokenize(line.rstrip())
         d = word_feats(tolk_posset)
-        print presi + "-" + classifier.classify(d) + ":" + "\t" + "1"
+        if presi != None:
+            print presi + "-" + classifier.classify(d) + ":" + "\t" + "1"
 
 if __name__ == "__main__":
     main(sys.argv)
